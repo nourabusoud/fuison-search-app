@@ -1,28 +1,37 @@
 <template>
-  <div class="listing">
+  <div class="content-wrapper listing">
     <h1>{{ title }}</h1>
-    <input type="text" name="search" v-model="term">
-    <div id="search-result">
-      <div v-for="session in results" :key="session.id" class="item">
-        <h2>{{ session.title }} - {{ session.year }}</h2>
-        <h3>{{ session.speaker }}</h3>
-      </div>
+    <div class="serach-box">
+      <input type="text" class="search-field" v-model="term" @keyup.enter="getFusionData">
+      <button class="search-button" v-on:click="getFusionData">Go</button>
+    </div>
+    <div class="search-result">
+      <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
     </div>
   </div>
 </template>
 
 <script>
 import {username, password} from '../fusion/credentials'
-
+import sessionSummary from './sessionSummary'
+/* eslint-disable no-unused-expressions */
 export default {
   name: 'Listing',
   data () {
     return {
-      title: 'Search stuff here',
+      title: 'Revolution Session Data',
       term: '',
-      sessionCreated: false,
+      authSessionCreated: false,
       results: []
     }
+  },
+  components: {
+    sessionSummary
+  },
+  watch: {
+    // term: function (val) {
+    //   this.getFusionData()
+    // }
   },
   mounted () {
     this.createSession()
@@ -39,11 +48,14 @@ export default {
       })
     },
     getFusionData: function () {
-      let url = 'http://localhost:8764/api/apollo/apps/Revolution_Session_Data_Search/query-pipelines/_lw_qwb_tmp_49394373810908136/collections/Revolution_Session_Data_Search/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=0&q=*:*&debug=true&rows=10'
+      let serachTerm = (this.term !== '') ? this.term : '*:*'
 
+      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data_Search/query-pipelines/_lw_qwb_tmp_50569357302522626/collections/Revolution_Session_Data_Search/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=0&q=${serachTerm}&debug=true&rows=5`
+
+      console.log(url)
+      this.results = [] // reset results
       this.$http.get(url).then(function (response) {
         // console.log(response.body)
-        /* eslint-disable no-unused-expressions */
         let docs = response.body.response.docs
         docs.forEach(item => {
           let session = {}
@@ -52,9 +64,12 @@ export default {
           session.year = item.year_s
           session.location = item.location_s
           session.speaker = item.speaker_name_s
-          session.summary = item.summary_s
+          session.summary = item.summary_t[0]
           session.organization = item.organization_s
-          session.youtube_url_s ? session.youtube_url = item.youtube_url_s : ''
+          session.youtube_url = (typeof item.youtube_url_s !== 'undefined') ? item.youtube_url_s : ''
+          session.slideshare_url = (typeof item.slideshare_url_t !== 'undefined') ? item.slideshare_url_t[0] : ''
+
+          // session.slideshare_url_t ? session.slideshare_url = session.slideshare_url_t : session.youtube_url = ''
           this.results.push(session)
         })
         console.log(this.results)

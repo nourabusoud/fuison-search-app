@@ -1,0 +1,54 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+*{
+  box-sizing: border-box;
+}
+
+body{
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  color: $text-dark;
+}
+
+
+
+/* Buttons styles start */
+button {
+  display: inline-block;
+  border: none;
+  padding: 1rem 2rem;
+  margin: 0;
+  text-decoration: none;
+  background: $primary-color;
+  color: $text-light;
+  font-family: sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  text-align: center;
+  transition: background 250ms ease-in-out, transform 150ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+button:hover,
+button:focus {
+  background: lighten($primary-color, 5%);
+}
+
+button:focus {
+  outline: none;
+}
+
+button:active {
+  transform: scale(0.99);
+}
+/* Button styles end */
+
+
+.content-wrapper{
+  width: $wrapper-width;
+  max-width: 90%;
+  margin: $gutter*3 auto;
+}
