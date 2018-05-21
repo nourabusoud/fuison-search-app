@@ -33,5 +33,13 @@
     border-bottom: 1px solid $secondary-color;
     padding: $gutter*2 0;
     margin-bottom: $gutter*2;
+
+    .details{
+      display: none;
+    }
+
+    .details-toggle:checked + .details{
+      display: block;
+    }
   }
 }
