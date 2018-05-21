@@ -12,12 +12,12 @@
       </div>
       <div v-if="session.slideshare_url">
         <a v-bind:href="session.slideshare_url">Go to presentation</a>
-      </div>  
+      </div>
     </div>
   </section>
 </template>
-<script>
 
+<script>
 export default {
   name: 'sessionSummary',
   props: ['session'],
@@ -26,13 +26,12 @@ export default {
   },
   computed: {
     youtubeLink () {
-      if(this.session.youtube_url !== ''){
-        let link = this.session.youtube_url.split('https://youtu.be/');
+      if (this.session.youtube_url !== '') {
+        let link = this.session.youtube_url.split('https://youtu.be/')
         return `https://www.youtube.com/embed/${link[1]}`
       } else {
         return false
       }
-
     }
   },
   mounted () {},

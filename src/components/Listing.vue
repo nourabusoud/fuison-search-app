@@ -8,12 +8,14 @@
     <div class="search-result">
       <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
     </div>
+    <pagination :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
   </div>
 </template>
 
 <script>
 import {username, password} from '../fusion/credentials'
 import sessionSummary from './sessionSummary'
+import pagination from './pagination'
 /* eslint-disable no-unused-expressions */
 export default {
   name: 'Listing',
@@ -22,16 +24,25 @@ export default {
       title: 'Revolution Session Data',
       term: '',
       authSessionCreated: false,
+      itemsPerPage: 10,
+      resultCount: '',
       results: []
     }
   },
   components: {
-    sessionSummary
+    sessionSummary,
+    pagination
   },
   watch: {
-    // term: function (val) {
-    //   this.getFusionData()
-    // }
+    start: function () {
+      this.getFusionData()
+    }
+  },
+  computed: {
+    start () {
+      const pageNumber = (this.$route.params.page) ? this.$route.params.page : 1
+      return ((pageNumber - 1) * this.itemsPerPage)
+    }
   },
   mounted () {
     this.createSession()
@@ -50,12 +61,13 @@ export default {
     getFusionData: function () {
       let serachTerm = (this.term !== '') ? this.term : '*:*'
 
-      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data_Search/query-pipelines/_lw_qwb_tmp_50569357302522626/collections/Revolution_Session_Data_Search/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=0&q=${serachTerm}&debug=true&rows=5`
+      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data_Search/query-pipelines/_lw_qwb_tmp_50569357302522626/collections/Revolution_Session_Data_Search/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}&q=${serachTerm}&debug=true&rows=${this.itemsPerPage}`
 
-      console.log(url)
+      // let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data_Search/query-pipelines/_lw_qwb_tmp_50569357302522626/collections/Revolution_Session_Data_Search/select?fq=id:quickstart/Revolution-Session-Data.csv#0`
       this.results = [] // reset results
       this.$http.get(url).then(function (response) {
-        // console.log(response.body)
+        console.log('response', response)
+        this.resultCount = response.body.response.numFound
         let docs = response.body.response.docs
         docs.forEach(item => {
           let session = {}
@@ -64,7 +76,7 @@ export default {
           session.year = item.year_s
           session.location = item.location_s
           session.speaker = item.speaker_name_s
-          session.summary = item.summary_t[0]
+          session.summary = (typeof item.summary_t !== 'undefined') ? item.summary_t[0] : ''
           session.organization = item.organization_s
           session.youtube_url = (typeof item.youtube_url_s !== 'undefined') ? item.youtube_url_s : ''
           session.slideshare_url = (typeof item.slideshare_url_t !== 'undefined') ? item.slideshare_url_t[0] : ''
