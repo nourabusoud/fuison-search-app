@@ -61,9 +61,8 @@ export default {
     getFusionData: function () {
       let serachTerm = (this.term !== '') ? this.term : '*:*'
 
-      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data_Search/query-pipelines/_lw_qwb_tmp_50569357302522626/collections/Revolution_Session_Data_Search/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}&q=${serachTerm}&debug=true&rows=${this.itemsPerPage}`
+      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data/query-pipelines/Revolution_Session_Data/collections/Revolution_Session_Data/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}&q=${serachTerm}&debug=true&rows=${this.itemsPerPage}`
 
-      // let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data_Search/query-pipelines/_lw_qwb_tmp_50569357302522626/collections/Revolution_Session_Data_Search/select?fq=id:quickstart/Revolution-Session-Data.csv#0`
       this.results = [] // reset results
       this.$http.get(url).then(function (response) {
         console.log('response', response)
@@ -71,17 +70,12 @@ export default {
         let docs = response.body.response.docs
         docs.forEach(item => {
           let session = {}
-          session.id = item.id
-          session.title = item.title_s
+          session.id = item.sessionId_i
+          session.title = item.title_t[0]
           session.year = item.year_s
           session.location = item.location_s
           session.speaker = item.speaker_name_s
-          session.summary = (typeof item.summary_t !== 'undefined') ? item.summary_t[0] : ''
-          session.organization = item.organization_s
-          session.youtube_url = (typeof item.youtube_url_s !== 'undefined') ? item.youtube_url_s : ''
-          session.slideshare_url = (typeof item.slideshare_url_t !== 'undefined') ? item.slideshare_url_t[0] : ''
 
-          // session.slideshare_url_t ? session.slideshare_url = session.slideshare_url_t : session.youtube_url = ''
           this.results.push(session)
         })
         console.log(this.results)
