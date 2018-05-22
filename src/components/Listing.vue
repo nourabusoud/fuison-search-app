@@ -2,13 +2,16 @@
   <div class="content-wrapper listing">
     <h1>{{ title }}</h1>
     <div class="serach-box">
-      <input type="text" class="search-field" v-model="term" @keyup.enter="getFusionData">
-      <button class="search-button" v-on:click="getFusionData">Go</button>
+      <input type="text" class="search-field" v-model="term" @keyup.enter="serachTerm" list="history">
+      <datalist id="history" v-if="searchHistory">
+        <option  v-for="(item, index) in searchHistory" :key="index" :value="item.term"></option>
+      </datalist>
+      <button class="search-button" v-on:click="serachTerm">Go</button>
     </div>
     <div class="search-result">
       <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
     </div>
-    <pagination :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
+    <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
   </div>
 </template>
 
@@ -42,6 +45,14 @@ export default {
     start () {
       const pageNumber = (this.$route.params.page) ? this.$route.params.page : 1
       return ((pageNumber - 1) * this.itemsPerPage)
+    },
+    searchHistory () {
+      let localSearchHistory = JSON.parse(localStorage.getItem('searchHistory'))
+      if (localSearchHistory !== null && typeof localSearchHistory !== 'undefined') {
+        return localSearchHistory
+      } else {
+        return []
+      }
     }
   },
   mounted () {
@@ -75,13 +86,24 @@ export default {
           session.year = item.year_s
           session.location = item.location_s
           session.speaker = item.speaker_name_s
-
           this.results.push(session)
         })
         console.log(this.results)
       }, function (error) {
         console.log(error)
       })
+    },
+    serachTerm: function () {
+      this.getFusionData()
+      this.$router.replace(`/`) // go back to homepage when searching for a new term
+      this.updateSearchHistory()
+    },
+    updateSearchHistory: function () {
+      // Parse any JSON previously stored in allEntries
+      if (this.searchHistory.length >= 10) this.searchHistory.shift() // save upto 10 terms in search history
+      this.searchHistory.push({'term': this.term})
+      localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory))
+      console.log('hey', this.searchHistory)
     }
   }
 }
