@@ -1,26 +1,20 @@
 <template>
   <div class="content-wrapper listing">
     <h1>{{ title }}</h1>
-    <div class="serach-box">
-      <input type="text" class="search-field" v-model="term" @keyup.enter="serachTerm" list="history">
-      <!-- datalist is not supported yet by Safari -->
-      <datalist id="history" v-if="searchHistory">
-        <option  v-for="(item, index) in searchHistory" :key="index" :value="item.term"></option>
-      </datalist>
-      <button class="search-button" v-on:click="serachTerm">Go</button>
-    </div>
+    <searchBox></searchBox>
     <div class="search-result" v-if="resultCount">
       <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
       <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
     </div>
     <div v-else>
-      <h2>Sory, there are no results for: {{ term }}</h2>
+      <h2>Sory, there are no results for: {{ searchTerm }}</h2>
     </div>
   </div>
 </template>
 
 <script>
 import {username, password} from '../fusion/credentials'
+import searchBox from './searchBox'
 import sessionSummary from './sessionSummary'
 import pagination from './pagination'
 /* eslint-disable no-unused-expressions */
@@ -37,14 +31,16 @@ export default {
     }
   },
   components: {
+    searchBox,
     sessionSummary,
     pagination
   },
   watch: {
     start: function () {
       this.getFusionData()
-      // add the searched term to the url
-      this.checkUrl()
+    },
+    searchTerm: function () {
+      this.getFusionData()
     }
   },
   computed: {
@@ -54,17 +50,15 @@ export default {
       // get start parameter for the api request
       return ((pageNumber - 1) * this.itemsPerPage)
     },
-    searchHistory () {
-      let localSearchHistory = JSON.parse(localStorage.getItem('searchHistory'))
-      if (localSearchHistory !== null && typeof localSearchHistory !== 'undefined') {
-        return localSearchHistory
+    searchTerm () {
+      if (this.$route.params.term !== '' && typeof this.$route.params.term !== 'undefined') {
+        return this.$route.params.term
       } else {
-        return []
+        return '*:*'
       }
     }
   },
   mounted () {
-    this.checkUrl()
     this.createSession()
     this.getFusionData()
   },
@@ -79,9 +73,7 @@ export default {
       })
     },
     getFusionData: function () {
-      let serachTerm = (this.term !== '') ? this.term : '*:*'
-
-      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data/query-pipelines/Revolution_Session_Data/collections/Revolution_Session_Data/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}&q=${serachTerm}&debug=true&rows=${this.itemsPerPage}`
+      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data/query-pipelines/Revolution_Session_Data/collections/Revolution_Session_Data/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}&q=${this.searchTerm}&debug=true&rows=${this.itemsPerPage}`
 
       this.results = [] // reset results
       this.$http.get(url).then(function (response) {
@@ -101,35 +93,6 @@ export default {
       }, function (error) {
         console.log(error)
       })
-    },
-    serachTerm: function () {
-      this.getFusionData()
-      this.$router.replace(`/1/${this.term}`) // go back to homepage when searching for a new term
-      this.updateSearchHistory()
-    },
-    updateSearchHistory: function () {
-      let termExists = false
-      // Parse any JSON previously stored in allEntries
-      if (this.searchHistory.length >= 10) this.searchHistory.shift() // save upto 10 terms in search history
-      this.searchHistory.map(item => {
-        // check if the term already exist in searchHistory
-        if (item.term === this.term) {
-          termExists = true
-        }
-      })
-      // add the term to searchHistory only if it doesn't already exist
-      if (!termExists) {
-        console.log('here')
-        this.searchHistory.push({'term': this.term})
-        localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory))
-      }
-
-      console.log('hey', this.searchHistory)
-    },
-    checkUrl: function () {
-      if (this.$route.params.term !== '' && typeof this.$route.params.term !== 'undefined') {
-        this.term = this.$route.params.term
-      }
     }
   }
 }

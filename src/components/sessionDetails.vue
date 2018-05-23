@@ -1,10 +1,7 @@
 <template>
   <div class="content-wrapper listing">
+    <searchBox></searchBox>
     <h1>{{ title }}</h1>
-    <div class="serach-box">
-      <input type="text" class="search-field" v-model="term" @keyup.enter="getFusionData">
-      <button class="search-button" v-on:click="getFusionData">Go</button>
-    </div>
     <div v-if="getSummary">
       <sessionSummary  :session="session"></sessionSummary>
     </div>
@@ -13,6 +10,7 @@
 
 <script>
 import sessionSummary from './sessionSummary'
+import searchBox from './searchBox'
 
 export default {
   name: 'sessionDetails',
@@ -25,6 +23,7 @@ export default {
     }
   },
   components: {
+    searchBox,
     sessionSummary
   },
   computed: {},
