@@ -6,12 +6,11 @@
     <datalist id="history" v-if="searchHistory">
       <option  v-for="(item, index) in searchHistory" :key="index" :value="item.term"></option>
     </datalist>
-    <button v-on:click="addToBookmarks(searchTerm)">add to bookmarks</button>
+    <button v-on:click="addToBookmarks(term)">add to bookmarks</button>
     <p class="error" v-if="bookmarkError">{{ bookmarkError }}</p>
     <div class="bookmarks">
       <span v-for="(item, index) in bookmarks" :key="index" v-on:click="searchBookmark(item.bookmark)">{{ item.bookmark }}</span>
     </div>
-    
   </div>
 </template>
 
@@ -49,8 +48,8 @@ export default {
   },
   methods: {
     searchTerm: function () {
-      this.$router.replace(`/1/${this.term}`) // go back to homepage when searching for a new term
       this.updateSearchHistory()
+      this.$router.replace(`/1/${this.term}`) // go back to homepage when searching for a new term
     },
     searchBookmark: function (bookmark) {
       this.term = bookmark
@@ -61,7 +60,7 @@ export default {
       if (this.searchHistory.length >= 10) this.searchHistory.shift() // save upto 10 terms in search history
       this.searchHistory.map(item => {
         // check if the term already exist in searchHistory
-        if (item.term === this.term) {
+        if (item.term.toLowerCase() === this.term.toLowerCase()) {
           termExists = true
         }
       })
@@ -76,17 +75,17 @@ export default {
         this.term = this.$route.params.term
       }
     },
-    addToBookmarks: function (searchTerm) {
+    addToBookmarks: function (bookmarkTerm) {
       let bookmarkExist = false
       this.bookmarks.map(item => {
         // check if the term already exist in bookmarks
-        if (item.bookmark === searchTerm) {
+        if (item.bookmark.toLowerCase() === bookmarkTerm.toLowerCase()) {
           bookmarkExist = true
         }
       })
       // add the bookmark to searchHistory only if it doesn't already exist
       if (!bookmarkExist) {
-        this.bookmarks.push({'bookmark': searchTerm})
+        this.bookmarks.push({'bookmark': bookmarkTerm})
         localStorage.setItem('bookmarks', JSON.stringify(this.bookmarks))
       } else {
         this.bookmarkError = 'This bookmark already exist'

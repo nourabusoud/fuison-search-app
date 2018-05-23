@@ -6,6 +6,12 @@
       <div v-if="searchTerm !== '*:*'">
         <h2>Your search results for: {{ searchTerm }}</h2>
       </div>
+       <div v-for="facet in facetsCollection" :key="facet.name">
+        {{ facet.name }}
+        <div v-for="(item, index) in facet.collection" :key="index">
+          <div><span v-on:click="addFacet(facet.field, item[0])">{{ item[0] }} ({{ item[1] }})</span> <span v-on:click="removeFacet(facet.field, item[0])">X</span></div>
+        </div>
+      </div>
       <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
       <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
     </div>
@@ -29,7 +35,9 @@ export default {
       authSessionCreated: false,
       itemsPerPage: 10,
       resultCount: '',
-      results: []
+      results: [],
+      facetsCollection: [],
+      searchFacets: {}
     }
   },
   components: {
@@ -48,7 +56,6 @@ export default {
   computed: {
     start () {
       const pageNumber = (this.$route.params.page) ? this.$route.params.page : 1
-      console.log(this.$route.params.page)
       // get start parameter for the api request
       return ((pageNumber - 1) * this.itemsPerPage)
     },
@@ -75,11 +82,26 @@ export default {
       })
     },
     getFusionData: function () {
-      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data/query-pipelines/Revolution_Session_Data/collections/Revolution_Session_Data/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}&q=${this.searchTerm}&debug=true&rows=${this.itemsPerPage}`
+      let facetsQuery = ''
+      for (var key in this.searchFacets) {
+        facetsQuery += (`&fq=${key}:("${this.searchFacets[key]}")`)
+      }
 
-      this.results = [] // reset results
+      let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data/query-pipelines/Revolution_Session_Data/collections/Revolution_Session_Data/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}${facetsQuery}&q=${this.searchTerm}&debug=true&rows=${this.itemsPerPage}`
+
       this.$http.get(url).then(function (response) {
         console.log('response', response)
+        this.results = [] // reset results
+        this.facetsCollection = [] // reset facets
+        let facets = response.body.facet_counts.facet_fields
+        for (var key in facets) {
+          let facet = {}
+          facet.field = key
+          facet.name = key.replace('_s', '').replace('_t', '')
+          facet.collection = facets[key]
+          facet.search = ''
+          this.facetsCollection.push(facet)
+        }
         this.resultCount = response.body.response.numFound
         let docs = response.body.response.docs
         docs.forEach(item => {
@@ -91,10 +113,17 @@ export default {
           session.speaker = item.speaker_name_s
           this.results.push(session)
         })
-        // console.log(this.results)
       }, function (error) {
         console.log(error)
       })
+    },
+    addFacet: function (facetGroup, facetItem) {
+      this.searchFacets[facetGroup] = facetItem
+      this.getFusionData()
+    },
+    removeFacet: function (facetGroup) {
+      delete this.searchFacets[facetGroup]
+      this.getFusionData()
     }
   }
 }
