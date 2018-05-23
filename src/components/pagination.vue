@@ -29,8 +29,12 @@ export default {
   },
   methods: {
     setPage: function (pageNumber) {
+      let searchedTerm = ''
+      if (this.$route.params.term !== '' && typeof this.$route.params.term !== 'undefined') {
+        searchedTerm = this.$route.params.term
+      }
       this.currentPage = pageNumber
-      this.$router.replace(`/${this.currentPage}`)
+      this.$router.replace(`/${this.currentPage}/${searchedTerm}`)
     }
   }
 }

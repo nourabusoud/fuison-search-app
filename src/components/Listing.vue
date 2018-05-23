@@ -3,15 +3,19 @@
     <h1>{{ title }}</h1>
     <div class="serach-box">
       <input type="text" class="search-field" v-model="term" @keyup.enter="serachTerm" list="history">
+      <!-- datalist is not supported yet by Safari -->
       <datalist id="history" v-if="searchHistory">
         <option  v-for="(item, index) in searchHistory" :key="index" :value="item.term"></option>
       </datalist>
       <button class="search-button" v-on:click="serachTerm">Go</button>
     </div>
-    <div class="search-result">
+    <div class="search-result" v-if="resultCount">
       <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
+      <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
     </div>
-    <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
+    <div v-else>
+      <h2>Sory, there are no results for: {{ term }}</h2>
+    </div>
   </div>
 </template>
 
@@ -39,11 +43,15 @@ export default {
   watch: {
     start: function () {
       this.getFusionData()
+      // add the searched term to the url
+      this.checkUrl()
     }
   },
   computed: {
     start () {
       const pageNumber = (this.$route.params.page) ? this.$route.params.page : 1
+      console.log(this.$route.params.page)
+      // get start parameter for the api request
       return ((pageNumber - 1) * this.itemsPerPage)
     },
     searchHistory () {
@@ -56,6 +64,7 @@ export default {
     }
   },
   mounted () {
+    this.checkUrl()
     this.createSession()
     this.getFusionData()
   },
@@ -88,22 +97,39 @@ export default {
           session.speaker = item.speaker_name_s
           this.results.push(session)
         })
-        console.log(this.results)
+        // console.log(this.results)
       }, function (error) {
         console.log(error)
       })
     },
     serachTerm: function () {
       this.getFusionData()
-      this.$router.replace(`/`) // go back to homepage when searching for a new term
+      this.$router.replace(`/1/${this.term}`) // go back to homepage when searching for a new term
       this.updateSearchHistory()
     },
     updateSearchHistory: function () {
+      let termExists = false
       // Parse any JSON previously stored in allEntries
       if (this.searchHistory.length >= 10) this.searchHistory.shift() // save upto 10 terms in search history
-      this.searchHistory.push({'term': this.term})
-      localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory))
+      this.searchHistory.map(item => {
+        // check if the term already exist in searchHistory
+        if (item.term === this.term) {
+          termExists = true
+        }
+      })
+      // add the term to searchHistory only if it doesn't already exist
+      if (!termExists) {
+        console.log('here')
+        this.searchHistory.push({'term': this.term})
+        localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory))
+      }
+
       console.log('hey', this.searchHistory)
+    },
+    checkUrl: function () {
+      if (this.$route.params.term !== '' && typeof this.$route.params.term !== 'undefined') {
+        this.term = this.$route.params.term
+      }
     }
   }
 }
