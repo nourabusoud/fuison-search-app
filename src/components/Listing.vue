@@ -3,6 +3,9 @@
     <h1>{{ title }}</h1>
     <searchBox></searchBox>
     <div class="search-result" v-if="resultCount">
+      <div v-if="searchTerm !== '*:*'">
+        <h2>Your search results for: {{ searchTerm }}</h2>
+      </div>
       <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
       <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
     </div>
@@ -11,7 +14,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import {username, password} from '../fusion/credentials'
 import searchBox from './searchBox'
