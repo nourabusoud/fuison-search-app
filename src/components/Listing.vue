@@ -1,22 +1,48 @@
 <template>
-  <div class="content-wrapper listing">
-    <h1>{{ title }}</h1>
-    <searchBox></searchBox>
-    <div class="search-result" v-if="resultCount">
-      <div v-if="searchTerm !== '*:*'">
-        <h2>Your search results for: {{ searchTerm }}</h2>
-      </div>
-       <div v-for="facet in facetsCollection" :key="facet.name">
-        {{ facet.name }}
-        <div v-for="(item, index) in facet.collection" :key="index">
-          <div><span v-on:click="addFacet(facet.field, item[0])">{{ item[0] }} ({{ item[1] }})</span> <span v-on:click="removeFacet(facet.field, item[0])">X</span></div>
+  <div class="home">
+    <header>
+      <div class="logo">Revolution sessions</div>
+      <searchBox></searchBox>
+    </header>
+    <div class="content-wrapper ">
+      <div class="sidebar">
+        <div class="facets">
+          <div v-for="facet in facetsCollection" :key="facet.name">
+            <h3>{{ facet.name }}</h3>
+            <div class="facet">
+              <div v-if="!facet.showMore" v-for="(item, index) in facet.collection.slice(0, 5)" :key="index">
+                <input type="checkbox" :id="index" v-on:change="toggleFacet(facet.field, item[0])" class="facet-toggle" v-model="facet.checked">
+                <label :for="index">{{ item[0] }} ({{ item[1] }})</label>
+              </div>
+              <div v-if="facet.showMore && facet.length > 5">
+                <div v-for="(item, index) in facet.collection" :key="index">
+                  {{ facet.checked }}
+                  <input type="checkbox" :id="index" v-on:change="toggleFacet(facet.field, item[0])" class="facet-toggle" v-model="facet.checked">
+                  <label :for="index">{{ item[0] }} ({{ item[1] }})</label>
+                </div>
+              </div>
+              <div v-if="facet.length > 5" class="show-more_toggle">
+                <input type="checkbox" v-model="facet.showMore" :id="facet.name">
+                <label :for="facet.name">
+                  <span v-if="!facet.showMore">Show more</span><span v-else>Show else</span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
-      <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
-    </div>
-    <div v-else>
-      <h2>Sory, there are no results for: {{ searchTerm }}</h2>
+      <div class="search-result" v-if="resultCount">
+        <div v-if="searchTerm !== '*:*'">
+          <h2>Your search results for: {{ searchTerm }}</h2>
+        </div>
+        <div class="listing">
+          <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
+        </div>
+        <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
+      </div>
+      <div v-else>
+        <h2>Sory, there are no results for: {{ searchTerm }}</h2>
+      </div>
     </div>
   </div>
 </template>
@@ -33,7 +59,7 @@ export default {
       title: 'Revolution Session Data',
       term: '',
       authSessionCreated: false,
-      itemsPerPage: 10,
+      itemsPerPage: 9,
       resultCount: '',
       results: [],
       facetsCollection: [],
@@ -83,7 +109,7 @@ export default {
     },
     getFusionData: function () {
       let facetsQuery = ''
-      for (var key in this.searchFacets) {
+      for (let key in this.searchFacets) {
         facetsQuery += (`&fq=${key}:("${this.searchFacets[key]}")`)
       }
 
@@ -99,7 +125,9 @@ export default {
           facet.field = key
           facet.name = key.replace('_s', '').replace('_t', '')
           facet.collection = facets[key]
-          facet.search = ''
+          facet.length = facets[key].length
+          facet.showMore = false
+          facet.checked = (this.searchFacets.hasOwnProperty(key)) // assign True if it's already checked
           this.facetsCollection.push(facet)
         }
         this.resultCount = response.body.response.numFound
@@ -123,6 +151,14 @@ export default {
     },
     removeFacet: function (facetGroup) {
       delete this.searchFacets[facetGroup]
+      this.getFusionData()
+    },
+    toggleFacet: function (facetGroup, facetItem) {
+      if (this.searchFacets.hasOwnProperty(facetGroup)) {
+        delete this.searchFacets[facetGroup]
+      } else {
+        this.searchFacets[facetGroup] = facetItem
+      }
       this.getFusionData()
     }
   }

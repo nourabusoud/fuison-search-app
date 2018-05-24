@@ -12,7 +12,6 @@ body{
 }
 
 
-
 /* Buttons styles start */
 button {
   display: inline-block;
@@ -46,9 +45,25 @@ button:active {
 }
 /* Button styles end */
 
+header{
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  padding: $gutter;
+  background-color: $primary-color;
+
+  .logo{
+    color: $text-light;
+    font-size: 2em;
+  }
+}
 
 .content-wrapper{
   width: $wrapper-width;
   max-width: 90%;
-  margin: $gutter*3 auto;
+  margin: $gutter auto;
+}
+
+.home .content-wrapper{
+  display: grid;
+  grid-template-columns: 1fr 3fr;
 }

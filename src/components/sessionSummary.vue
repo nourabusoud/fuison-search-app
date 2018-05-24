@@ -1,6 +1,6 @@
 <template>
   <section class="item">
-    <h2 class="item-title">{{ session.title }}</h2>
+    <h3 class="item-title">{{ session.title }}</h3>
     <router-link :to="{ name: 'sessionDetails', params: { id: session.id }}" v-if="!session.summary">Read more</router-link>
     <span class="item-location">{{ session.location }}</span><span class="item-year">{{ session.year }}</span>
     <span class="item-organization">{{ session.organization }}</span>
