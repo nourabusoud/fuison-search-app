@@ -1,18 +1,23 @@
 <template>
-  <div class="serach-box">
-    <input type="text" class="search-field" v-model="term" @keyup.enter="search" list="history">
-    <button class="search-button" v-on:click="search">Go</button>
-    <!-- datalist is not supported yet by Safari -->
-    <datalist id="history" v-if="searchHistory">
-      <option  v-for="(item, index) in searchHistory" :key="index" :value="item.term"></option>
-    </datalist>
+  <div class="page-header">
+    <div class="header-content">
+      <div class="logo">Revolution data</div>
+      <div class="search-field">
+        <input type="text" v-model="term" @keyup.enter="search" list="history">
+        <button class="search-button" v-on:click="search"></button>
+        <!-- datalist is not supported yet by Safari -->
+        <datalist id="history" v-if="searchHistory">
+          <option  v-for="(item, index) in searchHistory" :key="index" :value="item.term"></option>
+        </datalist>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 /* eslint-disable no-unused-expressions */
 export default {
-  name: 'searchBox',
+  name: 'pageHeader',
   props: ['searchTerm'],
   data () {
     return {
@@ -41,7 +46,7 @@ export default {
   methods: {
     search: function () {
       this.updateSearchHistory()
-      this.$router.replace(`/1/${this.term}`) // go back to homepage when searching for a new term
+      this.$router.replace(`/listing/1/${this.term}`) // go back to homepage when searching for a new term
     },
     updateSearchHistory: function () {
       let termExists = false

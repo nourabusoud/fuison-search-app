@@ -8,12 +8,17 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/:page?/:term?',
+      path: '/',
+      name: 'home',
+      component: Listing
+    },
+    {
+      path: '/listing/:page?/:term?',
       name: 'Listing',
       component: Listing
     },
     {
-      path: '/session/:id/',
+      path: '/session/:id',
       name: 'sessionDetails',
       component: sessionDetails
     }

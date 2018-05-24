@@ -34,7 +34,7 @@ export default {
         searchedTerm = this.$route.params.term
       }
       this.currentPage = pageNumber
-      this.$router.replace(`/${this.currentPage}/${searchedTerm}`)
+      this.$router.replace(`/listing/${this.currentPage}/${searchedTerm}`)
     }
   }
 }

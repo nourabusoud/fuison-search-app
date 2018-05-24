@@ -11,8 +11,10 @@ body{
   color: $text-dark;
 }
 
+a{
+  color: $primary-color;
+}
 
-/* Buttons styles start */
 button {
   display: inline-block;
   border: none;
@@ -33,29 +35,13 @@ button {
 
 button:hover,
 button:focus {
-  background: lighten($primary-color, 5%);
+  background: darken($primary-color, 2%);
 }
 
 button:focus {
   outline: none;
 }
-
-button:active {
-  transform: scale(0.99);
-}
 /* Button styles end */
-
-header{
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  padding: $gutter;
-  background-color: $primary-color;
-
-  .logo{
-    color: $text-light;
-    font-size: 2em;
-  }
-}
 
 .content-wrapper{
   display: grid;
@@ -67,6 +53,34 @@ header{
 
 @media (min-width: 768px) {
   .home .content-wrapper{
-    grid-template-columns: 1fr 3fr;
+    grid-template-columns: 1fr 4fr;
+    grid-column-gap: $gutter*2;
+    grid-row-gap: $gutter;
+  }
+}
+
+.tags-wrapper{
+  font-size: 0.9em;
+  width: 100%;
+  .tag{
+    background-color: $smoke;
+    color: $primary-color;
+    display: inline-block;
+    margin: 0 10px 4px 0;
+    padding: 5px 10px 5px 25px;
+    border-radius: $border-radius;
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: 4px center;
+    &-year{
+      background-image: url('assets/icon-calendar.svg');
+    }
+    &-location{
+      background-image: url('assets/icon-location.svg');
+    }        
+    &-speaker{
+      background-image: url('assets/icon-speaker.svg');
+      background-size: 18px;
+    }
   }
 }

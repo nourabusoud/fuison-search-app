@@ -1,0 +1,11 @@
+
+@media (min-width: 1024px) {
+  .sessionDetails{
+    .hasVideo{
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-column-gap: $gutter;
+      grid-row-gap: $gutter;
+    }
+  }
+}

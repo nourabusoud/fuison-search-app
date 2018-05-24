@@ -1,18 +1,11 @@
 <template>
   <section class="item">
     <h3 class="item-title">{{ session.title }}</h3>
-    <router-link :to="{ name: 'sessionDetails', params: { id: session.id }}" v-if="!session.summary">Read more</router-link>
-    <span class="item-location">{{ session.location }}</span><span class="item-year">{{ session.year }}</span>
-    <span class="item-organization">{{ session.organization }}</span>
-    <span class="item-speaker">{{ session.speaker }}</span>
-    <div class="details" v-if="session.summary">
-      <p>{{ session.summary }}</p>
-      <div v-if="youtubeLink">
-        <iframe width="420" height="315"  v-bind:src="youtubeLink" frameborder="0" allowfullscreen></iframe>
-      </div>
-      <div v-if="session.slideshare_url">
-        <a v-bind:href="session.slideshare_url">Go to presentation</a>
-      </div>
+    <p class="short-summary">{{ session.summary }}</p>
+    <router-link :to="{ name: 'sessionDetails', params: { id: session.id }}">Read more</router-link>
+    <div class="tags-wrapper">
+      <span class="tag tag-location">{{ session.location }}</span><span class="tag tag-year">{{ session.year }}</span>
+      <span class="tag tag-speaker">{{ session.speaker }}</span>
     </div>
   </section>
 </template>
@@ -23,20 +16,7 @@ export default {
   props: ['session'],
   data () {
     return {}
-  },
-  computed: {
-    youtubeLink () {
-      console.log(this.session)
-      if (this.session.youtube_url !== '') {
-        let link = this.session.youtube_url.split('https://youtu.be/')
-        return `https://www.youtube.com/embed/${link[1]}`
-      } else {
-        return false
-      }
-    }
-  },
-  mounted () {},
-  methods: {}
+  }
 }
 </script>
 

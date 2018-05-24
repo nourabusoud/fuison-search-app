@@ -1,14 +1,11 @@
 <template>
   <div class="home">
-    <header>
-      <div class="logo">Revolution sessions</div>
-      <searchBox :searchTerm="searchTerm"></searchBox>
-    </header>
+    <pageHeader :searchTerm="searchTerm"></pageHeader>
     <div class="content-wrapper ">
       <div class="sidebar">
         <div class="bookmarks" v-if="bookmarks.length > 0">
           <h3>Your bookmarks:</h3>
-          <span v-for="(item, index) in bookmarks" :key="index" v-on:click="searchBookmark(item.bookmark)">{{ item.bookmark }} </span>
+          <span class="bookmark" v-for="(item, index) in bookmarks" :key="index" v-on:click="searchBookmark(item.bookmark)">{{ item.bookmark }} </span>
         </div>
         <div class="facets" v-if="resultCount">
           <div v-for="facet in facetsCollection" :key="facet.name" class="facet">
@@ -53,7 +50,7 @@
 </template>
 <script>
 import {username, password} from '../fusion/credentials'
-import searchBox from './searchBox'
+import pageHeader from './pageHeader'
 import sessionSummary from './sessionSummary'
 import pagination from './pagination'
 /* eslint-disable no-unused-expressions */
@@ -73,7 +70,7 @@ export default {
     }
   },
   components: {
-    searchBox,
+    pageHeader,
     sessionSummary,
     pagination
   },
@@ -143,9 +140,11 @@ export default {
           let session = {}
           session.id = item.sessionId_i
           session.title = item.title_t[0]
+          session.summary = `${item.summary_t[0].split(' ').splice(0, 20).join(' ')} ...` // 50 words long
           session.year = item.year_s
           session.location = item.location_s
           session.speaker = item.speaker_name_s
+          session.details = false
           this.results.push(session)
         })
       }, function (error) {
@@ -167,7 +166,7 @@ export default {
       }
     },
     searchBookmark: function (bookmark) {
-      this.$router.replace(`/1/${bookmark}`)
+      this.$router.replace(`/listing/1/${bookmark}`)
     },
     addBookmark: function (bookmarkTerm) {
       let bookmarkExist = false
