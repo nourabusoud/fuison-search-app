@@ -58,12 +58,15 @@ header{
 }
 
 .content-wrapper{
+  display: grid;
   width: $wrapper-width;
   max-width: 90%;
   margin: $gutter auto;
 }
 
-.home .content-wrapper{
-  display: grid;
-  grid-template-columns: 1fr 3fr;
+
+@media (min-width: 768px) {
+  .home .content-wrapper{
+    grid-template-columns: 1fr 3fr;
+  }
 }

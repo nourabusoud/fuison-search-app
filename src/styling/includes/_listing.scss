@@ -45,16 +45,58 @@
   label{
     cursor: pointer;
   }
+  &-toggle{
+    display: none;
+
+    + label{
+      display: inline-block;
+      position: relative;
+      padding-left: 30px;
+      margin-bottom: 10px;
+      &:before, &:after{
+        position: absolute;
+        content: '';
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 2px;
+      }
+      &:before{
+        left: 0;
+        width: 20px;
+        height: 20px;
+        background-color: $smoke;
+      }
+      &:after{
+        left: 3px;
+        width: 12px;
+        height: 12px;
+        background-color: $primary-color;
+        visibility: hidden;
+        opacity: 0;
+      }
+    }
+
+    &:checked + label:after{
+      visibility: visible;
+      opacity: 1;
+    }
+  }
   .show-more_toggle{
     input[type=checkbox]{
       display: none;
+    }
+    label span{
+      color: $primary-color;
+      text-decoration: underline;
+      margin-top: 10px;
+      display: inline-block;
     }
   }
 }
 
 @media (min-width: 768px) {
   .listing {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-column-gap: $gutter;
     grid-row-gap: $gutter;
   }

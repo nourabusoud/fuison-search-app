@@ -2,38 +2,43 @@
   <div class="home">
     <header>
       <div class="logo">Revolution sessions</div>
-      <searchBox></searchBox>
+      <searchBox :searchTerm="searchTerm"></searchBox>
     </header>
     <div class="content-wrapper ">
       <div class="sidebar">
-        <div class="facets">
-          <div v-for="facet in facetsCollection" :key="facet.name">
+        <div class="bookmarks" v-if="bookmarks.length > 0">
+          <h3>Your bookmarks:</h3>
+          <span v-for="(item, index) in bookmarks" :key="index" v-on:click="searchBookmark(item.bookmark)">{{ item.bookmark }} </span>
+        </div>
+        <div class="facets" v-if="resultCount">
+          <div v-for="facet in facetsCollection" :key="facet.name" class="facet">
             <h3>{{ facet.name }}</h3>
-            <div class="facet">
-              <div v-if="!facet.showMore" v-for="(item, index) in facet.collection.slice(0, 5)" :key="index">
-                <input type="checkbox" :id="index" v-on:change="toggleFacet(facet.field, item[0])" class="facet-toggle" v-model="facet.checked">
-                <label :for="index">{{ item[0] }} ({{ item[1] }})</label>
+            <!-- show first five items -->
+            <div v-if="!facet.showMore" v-for="(item, index) in facet.collection.slice(0, 5)" :key="index">
+              <input type="checkbox" :id="facet.name + '-' + index" v-on:change="toggleFacet(facet.field, item[0])" class="facet-toggle" v-model="facet.checked">
+              <label :for="facet.name + '-' + index">{{ item[0] }} ({{ item[1] }})</label>
+            </div>
+            <!-- show the rest of the items if the user clicked on 'show more' -->
+            <div v-if="facet.showMore && facet.length > 5">
+              <div v-for="(item, index) in facet.collection" :key="index">
+                <input type="checkbox" :id="facet.name + '-' + index" v-on:change="toggleFacet(facet.field, item[0])" class="facet-toggle" v-model="facet.checked">
+                <label :for="facet.name + '-' + index">{{ item[0] }} ({{ item[1] }})</label>
               </div>
-              <div v-if="facet.showMore && facet.length > 5">
-                <div v-for="(item, index) in facet.collection" :key="index">
-                  {{ facet.checked }}
-                  <input type="checkbox" :id="index" v-on:change="toggleFacet(facet.field, item[0])" class="facet-toggle" v-model="facet.checked">
-                  <label :for="index">{{ item[0] }} ({{ item[1] }})</label>
-                </div>
-              </div>
-              <div v-if="facet.length > 5" class="show-more_toggle">
-                <input type="checkbox" v-model="facet.showMore" :id="facet.name">
-                <label :for="facet.name">
-                  <span v-if="!facet.showMore">Show more</span><span v-else>Show else</span>
-                </label>
-              </div>
+            </div>
+            <div v-if="facet.length > 5" class="show-more_toggle">
+              <input type="checkbox" v-model="facet.showMore" :id="facet.name">
+              <label :for="facet.name">
+                <span v-if="!facet.showMore">Show more</span><span v-else>Show else</span>
+              </label>
             </div>
           </div>
         </div>
       </div>
       <div class="search-result" v-if="resultCount">
         <div v-if="searchTerm !== '*:*'">
-          <h2>Your search results for: {{ searchTerm }}</h2>
+          <h2>Your search results for: {{ searchTerm }} </h2>
+          <span v-on:click="addBookmark(searchTerm)">add to bookmarks</span>
+          <p class="error" v-if="bookmarkError">{{ bookmarkError }}</p>
         </div>
         <div class="listing">
           <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
@@ -57,13 +62,14 @@ export default {
   data () {
     return {
       title: 'Revolution Session Data',
-      term: '',
       authSessionCreated: false,
-      itemsPerPage: 9,
+      itemsPerPage: 10,
       resultCount: '',
       results: [],
       facetsCollection: [],
-      searchFacets: {}
+      searchFacets: {},
+      bookmarkError: '',
+      bookmarks: []
     }
   },
   components: {
@@ -96,6 +102,7 @@ export default {
   mounted () {
     this.createSession()
     this.getFusionData()
+    this.getBookmarks()
   },
   methods: {
     createSession: function () {
@@ -145,14 +152,6 @@ export default {
         console.log(error)
       })
     },
-    addFacet: function (facetGroup, facetItem) {
-      this.searchFacets[facetGroup] = facetItem
-      this.getFusionData()
-    },
-    removeFacet: function (facetGroup) {
-      delete this.searchFacets[facetGroup]
-      this.getFusionData()
-    },
     toggleFacet: function (facetGroup, facetItem) {
       if (this.searchFacets.hasOwnProperty(facetGroup)) {
         delete this.searchFacets[facetGroup]
@@ -160,6 +159,36 @@ export default {
         this.searchFacets[facetGroup] = facetItem
       }
       this.getFusionData()
+    },
+    getBookmarks: function () {
+      let localBookmarks = JSON.parse(localStorage.getItem('bookmarks'))
+      if (localBookmarks !== null && typeof localBookmarks !== 'undefined') {
+        this.bookmarks = localBookmarks
+      }
+    },
+    searchBookmark: function (bookmark) {
+      this.$router.replace(`/1/${bookmark}`)
+    },
+    addBookmark: function (bookmarkTerm) {
+      let bookmarkExist = false
+      if (bookmarkTerm !== '' && bookmarkTerm !== '*:*') {
+        this.bookmarks.map(item => {
+          // check if the term already exist in bookmarks
+          if (item.bookmark.toLowerCase() === bookmarkTerm.toLowerCase()) {
+            bookmarkExist = true
+          }
+        })
+        // add the bookmark to searchHistory only if it doesn't already exist
+        if (!bookmarkExist) {
+          this.bookmarks.push({'bookmark': bookmarkTerm})
+          localStorage.setItem('bookmarks', JSON.stringify(this.bookmarks))
+        } else {
+          this.bookmarkError = 'This bookmark already exist'
+          setTimeout(() => {
+            this.bookmarkError = '' // reset error message
+          }, 2000)
+        }
+      }
     }
   }
 }
