@@ -2,10 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Listing from '@/components/Listing'
 import sessionDetails from '@/components/sessionDetails'
+import notFound from '@/components/notFound'
 
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [
     {
       path: '/',
@@ -18,10 +19,24 @@ export default new Router({
       component: Listing
     },
     {
-      path: '/session/:id',
+      path: '/session/:id/:term?',
       name: 'sessionDetails',
       component: sessionDetails
+    },
+    {
+      path: '/notFound',
+      component: notFound
     }
   ],
   mode: 'history'
 })
+
+router.beforeEach((to, from, next) => {
+  if (!to.matched.length) {
+    next('/notFound')
+  } else {
+    next()
+  }
+})
+
+export default router

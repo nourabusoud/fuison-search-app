@@ -1,9 +1,9 @@
 <template>
   <div class="page-header">
     <div class="header-content">
-      <div class="logo">Revolution data</div>
+      <div class="logo"><router-link :to="{ name: 'Listing', params: { page: 1 }}">Revolution data</router-link></div>
       <div class="search-field">
-        <input type="text" v-model="term" @keyup.enter="search" list="history">
+        <input type="text" v-model="term" @keyup.enter="search" list="history" name="search-field" placeholder="Search for something">
         <button class="search-button" v-on:click="search"></button>
         <!-- datalist is not supported yet by Safari -->
         <datalist id="history" v-if="searchHistory">
@@ -64,7 +64,7 @@ export default {
       }
     },
     checkUrl: function () {
-      if (this.$route.params.term !== '' && typeof this.$route.params.term !== 'undefined') {
+      if (this.$route.params.term !== '' && typeof this.$route.params.term !== 'undefined' && this.$route.params.term !== '*:*') {
         this.term = this.$route.params.term
       }
     }

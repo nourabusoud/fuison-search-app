@@ -1,11 +1,35 @@
+.session-details{
+  padding-bottom: $gutter*3;
+  p{
+    font-size: 1.2em;
+    line-height: 1.5em;
+  }
+  iframe{
+    width: 100%;
+    height: 400px;
+  }
+}
+
+.slideshare-link{
+  display: inline-block;
+  background-color: $primary-color;
+  padding: $gutter/2 $gutter;
+  color: $text-light;
+  border-radius: $border-radius;
+  text-decoration: none;
+  font-size: 1.2em;
+  margin-top: $gutter;
+
+  &:hover{
+    background-color: lighten($primary-color, 3%);
+  }
+}
 
 @media (min-width: 1024px) {
-  .sessionDetails{
-    .hasVideo{
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      grid-column-gap: $gutter;
-      grid-row-gap: $gutter;
+  .session-details{
+    iframe{
+      width: 100%;
+      height: 600px;
     }
   }
 }

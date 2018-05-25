@@ -1,11 +1,21 @@
 <template>
   <div class="home">
     <pageHeader :searchTerm="searchTerm"></pageHeader>
-    <div class="content-wrapper ">
+    <div v-if="errorMessage" class="error-message">
+        <h2>{{ errorMessage }}</h2>
+    </div>
+    <div v-else class="content-wrapper">
+      <input type="checkbox" id="m-options-toggle" class="m-options-toggle" v-model="mobileOptions">
+      <label for="m-options-toggle" class="m-options-toggle">
+        <span v-if="mobileOptions">Hide</span><span v-else>Show</span> options
+      </label>
+      <!-- Sidebar -->
       <div class="sidebar">
         <div class="bookmarks" v-if="bookmarks.length > 0">
           <h3>Your bookmarks:</h3>
-          <span class="bookmark" v-for="(item, index) in bookmarks" :key="index" v-on:click="searchBookmark(item.bookmark)">{{ item.bookmark }} </span>
+          <transition-group name="bookmarks">
+            <span class="bookmark" v-for="(item, index) in bookmarks" :key="index" v-on:click="searchBookmark(item.bookmark)">{{ item.bookmark }} </span>
+          </transition-group>
         </div>
         <div class="facets" v-if="resultCount">
           <div v-for="facet in facetsCollection" :key="facet.name" class="facet">
@@ -25,25 +35,28 @@
             <div v-if="facet.length > 5" class="show-more_toggle">
               <input type="checkbox" v-model="facet.showMore" :id="facet.name">
               <label :for="facet.name">
-                <span v-if="!facet.showMore">Show more</span><span v-else>Show else</span>
+                Show <span v-if="!facet.showMore">more</span><span v-else>less</span>
               </label>
             </div>
           </div>
         </div>
       </div>
+      <!-- Search results -->
       <div class="search-result" v-if="resultCount">
         <div v-if="searchTerm !== '*:*'">
-          <h2>Your search results for: {{ searchTerm }} </h2>
-          <span v-on:click="addBookmark(searchTerm)">add to bookmarks</span>
+          <h2>
+            Your search results for: {{ searchTerm }}
+            <span v-on:click="addBookmark(searchTerm)" class="add-bookmark" title="add to bookmarks"></span>
+          </h2>
           <p class="error" v-if="bookmarkError">{{ bookmarkError }}</p>
         </div>
         <div class="listing">
-          <sessionSummary  v-for="session in results"  :key="session.id" :session="session"></sessionSummary>
+          <sessionSummary  v-for="session in results"  :key="session.id" :session="session" :term="searchTerm"></sessionSummary>
         </div>
         <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
       </div>
       <div v-else>
-        <h2>Sory, there are no results for: {{ searchTerm }}</h2>
+        <h2>Sorry, there are no results for: {{ searchTerm }}</h2>
       </div>
     </div>
   </div>
@@ -66,7 +79,9 @@ export default {
       facetsCollection: [],
       searchFacets: {},
       bookmarkError: '',
-      bookmarks: []
+      bookmarks: [],
+      mobileOptions: false,
+      errorMessage: ''
     }
   },
   components: {
@@ -107,8 +122,8 @@ export default {
       const data = { username, password, crossDomain: true }
       this.$http.post(authUrl, data).then(function (response) {
         this.sessionCreated = true
-      }, function (error) {
-        console.log(error)
+      }, function () {
+        this.errorMessage = 'Oops! Something went wrong'
       })
     },
     getFusionData: function () {
@@ -120,7 +135,6 @@ export default {
       let url = `http://localhost:8764/api/apollo/apps/Revolution_Session_Data/query-pipelines/Revolution_Session_Data/collections/Revolution_Session_Data/select?echoParams=all&wt=json&json.nl=arrarr&sort&start=${this.start}${facetsQuery}&q=${this.searchTerm}&debug=true&rows=${this.itemsPerPage}`
 
       this.$http.get(url).then(function (response) {
-        console.log('response', response)
         this.results = [] // reset results
         this.facetsCollection = [] // reset facets
         let facets = response.body.facet_counts.facet_fields
@@ -147,8 +161,8 @@ export default {
           session.details = false
           this.results.push(session)
         })
-      }, function (error) {
-        console.log(error)
+      }, function () {
+        this.errorMessage = 'Oops! Something went wrong'
       })
     },
     toggleFacet: function (facetGroup, facetItem) {

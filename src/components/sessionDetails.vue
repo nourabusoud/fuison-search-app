@@ -1,19 +1,22 @@
 <template>
-  <section class="sessionDetails">
+  <section class="session-details">
     <pageHeader></pageHeader>
-    <div class="content-wrapper">
+    <div v-if="errorMessage" class="error-message">
+        <h2>{{ errorMessage }}</h2>
+    </div>
+    <div v-else class="content-wrapper">
+      <div v-if="youtubeLink" class="youtube-wrappers">
+        <iframe v-bind:src="youtubeLink" frameborder="0" allowfullscreen></iframe>
+      </div>
       <h1 class="item-title">{{ sessionData.title }}</h1>
       <div class="tags-wrapper">
         <span class="tag tag-location">{{ sessionData.location }}</span><span class="tag tag-year">{{ sessionData.year }}</span>
         <span class="tag tag-speaker">{{ sessionData.speaker }}</span>
       </div>
-      <div class="details" v-bind:class="{ hasVideo: youtubeLink }">
+      <div class="details">
         <div class="summary">
           <p>{{ sessionData.summary }}</p>
-          <a v-bind:href="sessionData.slideshare_url" v-if="sessionData.slideshare_url">Check slideshare presentation</a>
-        </div>
-        <div v-if="youtubeLink" class="youtube-wrappers">
-          <iframe width="420" height="315"  v-bind:src="youtubeLink" frameborder="0" allowfullscreen></iframe>
+          <a v-bind:href="sessionData.slideshare_url" v-if="sessionData.slideshare_url" class="slideshare-link">Check slideshare presentation</a>
         </div>
       </div>
     </div>
@@ -28,7 +31,8 @@ export default {
   name: 'sessionDetails',
   data () {
     return {
-      sessionData: {}
+      sessionData: {},
+      errorMessage: ''
     }
   },
   components: {
@@ -54,8 +58,8 @@ export default {
       const data = { username, password, crossDomain: true }
       this.$http.post(authUrl, data).then(function (response) {
         this.sessionCreated = true
-      }, function (error) {
-        console.log(error)
+      }, function () {
+        this.errorMessage = 'Oops! Something went wrong'
       })
     },
     getData: function () {
@@ -76,8 +80,8 @@ export default {
         session.youtube_url = (typeof doc.youtube_url_s !== 'undefined') ? doc.youtube_url_s : ''
         session.slideshare_url = (typeof doc.slideshare_url_t !== 'undefined') ? doc.slideshare_url_t[0] : ''
         this.sessionData = session
-      }, function (error) {
-        console.log(error)
+      }, function () {
+        this.errorMessage = 'Oops! Something went wrong'
       })
     }
   }

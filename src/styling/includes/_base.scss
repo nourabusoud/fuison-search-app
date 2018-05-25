@@ -11,6 +11,22 @@ body{
   color: $text-dark;
 }
 
+h1, h2, h3{
+  color: #333;
+}
+
+h1{
+  font-size: 2em;
+}
+
+h2{
+  font-size: 1.5em;
+}
+
+h3{
+  font-size: 1.25em;
+}
+
 a{
   color: $primary-color;
 }
@@ -51,7 +67,7 @@ button:focus {
 }
 
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .home .content-wrapper{
     grid-template-columns: 1fr 4fr;
     grid-column-gap: $gutter*2;
@@ -82,5 +98,36 @@ button:focus {
       background-image: url('assets/icon-speaker.svg');
       background-size: 18px;
     }
+  }
+}
+
+.error-message{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  height: 250px;
+  width: 350px;
+  max-width: 100%;
+  h2{
+    color: $danger;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+  &:before{
+    position: absolute;
+    content: '';
+    width: 200px;
+    height: 200px;
+    background-image: url('assets/alert.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
   }
 }
