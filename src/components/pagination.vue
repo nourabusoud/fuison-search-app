@@ -15,10 +15,10 @@
 <script>
 export default {
   name: 'pagination',
-  props: ['resultCount', 'itemsPerPage'],
+  props: ['resultCount', 'itemsPerPage', 'startPage'],
   data () {
     return {
-      currentPage: 1
+      currentPage: ''
     }
   },
   computed: {
@@ -27,7 +27,21 @@ export default {
       return Math.ceil(this.resultCount / this.itemsPerPage)
     }
   },
+  watch: {
+    '$props': {
+      handler: function () {
+        this.getCurrentPage()
+      },
+      deep: true
+    }
+  },
+  mounted () {
+    this.getCurrentPage()
+  },
   methods: {
+    getCurrentPage: function () {
+      this.currentPage = this.startPage
+    },
     setPage: function (pageNumber) {
       let searchedTerm = ''
       if (this.$route.params.term !== '' && typeof this.$route.params.term !== 'undefined') {

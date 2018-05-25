@@ -53,7 +53,7 @@
         <div class="listing">
           <sessionSummary  v-for="session in results"  :key="session.id" :session="session" :term="searchTerm"></sessionSummary>
         </div>
-        <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage"></pagination>
+        <pagination v-if="resultCount > itemsPerPage" :resultCount="resultCount" :itemsPerPage="itemsPerPage" :startPage="startPage"></pagination>
       </div>
       <div v-else>
         <h2>Sorry, there are no results for: {{ searchTerm }}</h2>
@@ -75,6 +75,7 @@ export default {
       authSessionCreated: false,
       itemsPerPage: 10,
       resultCount: '',
+      startPage: 1,
       results: [],
       facetsCollection: [],
       searchFacets: {},
@@ -171,6 +172,8 @@ export default {
       } else {
         this.searchFacets[facetGroup] = facetItem
       }
+      this.startPage = 1
+      this.$router.replace(`/listing/1/${this.searchTerm}`)
       this.getFusionData()
     },
     getBookmarks: function () {
