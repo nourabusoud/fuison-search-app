@@ -14,9 +14,6 @@
 # Details page view
 ![Alt text](/screenshots/details-page-view.jpg?raw=true "details-page-view")
 
-# Listing page view - mobile 
-![Alt text](/screenshots/Llsting-page_mobile.jpg?raw=true "Llsting-page_mobile")
-
 # 404 page
 ![Alt text](/screenshots/404-page.jpg?raw=true "Llsting-page_mobile")
 
