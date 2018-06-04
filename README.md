@@ -4,17 +4,17 @@
 
 ## Screenshots
 
-# Listing page view
+### Listing page view
 ![Alt text](/screenshots/listing-page-view.jpg?raw=true "listing-page-view")
 
 
-# Listing page view with term search and faceting
+### Listing page view with term search and faceting
 ![Alt text](/screenshots/listing-page_term-search-and-faceting.jpg?raw=true "listing-page_term-search-and-faceting")
 
-# Details page view
+### Details page view
 ![Alt text](/screenshots/details-page-view.jpg?raw=true "details-page-view")
 
-# 404 page
+### 404 page
 ![Alt text](/screenshots/404-page.jpg?raw=true "Llsting-page_mobile")
 
 ## Build Setup
