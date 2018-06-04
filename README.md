@@ -1,6 +1,24 @@
 # search-spa
 
-> A Vue.js project
+> A single page search application using Vue.js and Fusion 4.0.0
+
+## Screenshots
+
+# Listing page view
+![Alt text](/screenshots/listing-page-view.jpg?raw=true "listing-page-view")
+
+
+# Listing page view with term search and faceting
+![Alt text](/screenshots/listing-page_term-search-and-faceting.jpg?raw=true "listing-page_term-search-and-faceting")
+
+# Details page view
+![Alt text](/screenshots/details-page-view.jpg?raw=true "details-page-view")
+
+# Listing page view - mobile 
+![Alt text](/screenshots/Llsting-page_mobile.jpg?raw=true "Llsting-page_mobile")
+
+# 404 page
+![Alt text](/screenshots/404-page.jpg?raw=true "Llsting-page_mobile")
 
 ## Build Setup
 
